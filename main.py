@@ -6,17 +6,11 @@ class prompt(cmd.Cmd):
     
     def cmdloop(self, intro=None):
         """aka the PREpreloop"""
-        # Name the current menu
-        global here
-        here = "main"
-        # List menu options
-        global options
-        options = [about, info]
         return cmd.Cmd.cmdloop(self, intro)
 
     def preloop(self):
         """When first arriving at this this class, or any inheriting class"""
-        global here, options
+        # Print the menu
         self.do_menu(False)
 
     def do_quit(self, arg):
@@ -32,12 +26,6 @@ class prompt(cmd.Cmd):
 
     def postcmd(self, stop, line):
         return cmd.Cmd.postcmd(self, stop, line)
-
-    def do_home(self, arg):
-        """Navigate to the first menu"""
-        # is this redundant with menu command? Should we instead always populate main into the options list?
-        choice = main
-        return True
 
     def do_back(self,arg):
         """Navigate to the previous menu"""
@@ -75,12 +63,12 @@ class prompt(cmd.Cmd):
             print("That was not a valid option. Pick an item from the list.")
             return False
 
-class main(prompt):
+class home(prompt):
     """Top level menu"""
     def cmdloop(self, intro=None):
         """Before the inherited class's preloop"""
         global here
-        here = "main"
+        here = "home"
         global options
         options = [about, info]
         return cmd.Cmd.cmdloop(self, intro)
@@ -91,7 +79,7 @@ class about(prompt):
         global here
         here = "about"
         global options
-        options = [main, info]
+        options = [home, info]
         return cmd.Cmd.cmdloop(self, intro)
 
 class info(prompt):
@@ -100,12 +88,12 @@ class info(prompt):
         global here
         here = "info"
         global options
-        options = [main, about]
+        options = [home, about]
         return cmd.Cmd.cmdloop(self, intro)
 
 if __name__ == '__main__':
     running = True
-    choice = main # First menu class
+    choice = home # First menu class
     print("Starting root menu...")
     history = []
     while running == True:
