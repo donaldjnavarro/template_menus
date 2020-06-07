@@ -135,6 +135,7 @@ if __name__ == '__main__':
     history = []
     choice = home # First menu class
     options = {
+        # Name every prompt inheriting class and assign it any prompt classes it provides access to
         "global": [home],
         "home": [about, tools],
         "about": [],
