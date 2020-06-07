@@ -1,8 +1,9 @@
 import cmd
+import datetime
 
 class prompt(cmd.Cmd):
     """Global prompt. This class creates the default prompt interface. All menus should inherit this class"""
-    prompt = ": "
+    prompt = "(Type help to display the commands currently available)\n: "
     
     def cmdloop(self, intro=None):
         """aka the PREpreloop"""
@@ -45,15 +46,15 @@ class prompt(cmd.Cmd):
         if not arg:
             print("   <- Back to:",(history[-2]).__name__.title()) if len(history) > 1 else False
             print("  Active Menu:",(here).title())
+            menuTitled = False
+            menuTitle = "      Choices: "
+            # Display global menu options
+            for option in options["global"]:
+                if here != option.__name__: # Don't display the currently active menu
+                    leftRail = menuTitle if menuTitled == False else "               " # Only print the options header on the first line
+                    menuTitled = True # toggle to remember that options header has been set
+                    print(leftRail+(str(option.__name__)).title())
             if options[here]:
-                menuTitled = False
-                menuTitle = "      Choices: "
-                # Display global menu options
-                for option in options["global"]:
-                    if here != option.__name__: # Don't display the currently active menu
-                        leftRail = menuTitle if menuTitled == False else "               " # Only print the options header on the first line
-                        menuTitled = True # toggle to remember that options header has been set
-                        print(leftRail+(str(option.__name__)).title())
                 # Display local menu options, repeat logic used on globals above
                 for option in options[here]:
                     if here != option.__name__:
@@ -86,27 +87,47 @@ class home(prompt):
         """Before the inherited class's preloop"""
         global here
         here = "home"
-        global options
         return cmd.Cmd.cmdloop(self, intro)
-
-    def do_test(self, arg):
-        print(self.blah)
 
 class about(prompt):
     def cmdloop(self, intro=None):
         """Before the inherited class's preloop"""
         global here
         here = "about"
-        global options
         return cmd.Cmd.cmdloop(self, intro)
+    
+    def do_info(self, arg):
+        """Display info about this app"""
+        print("This is a project to create a template for a broader menu implementation via the cmd module.")
 
-class info(prompt):
+class tools(prompt):
     def cmdloop(self, intro=None):
         """Before the inherited class's preloop"""
         global here
-        here = "info"
-        global options
+        here = "tools"
         return cmd.Cmd.cmdloop(self, intro)
+
+class math(prompt):
+    def cmdloop(self, intro=None):
+        """Before the inherited class's preloop"""
+        global here
+        here = "math"
+        return cmd.Cmd.cmdloop(self, intro)
+
+    def do_float(self, arg):
+        """Display an example of a floating point error"""
+        print("1.2 - 1.0 =",1.2-1.0)
+
+class calendar(prompt):
+    def cmdloop(self, intro=None):
+        """Before the inherited class's preloop"""
+        global here
+        here = "calendar"
+        return cmd.Cmd.cmdloop(self, intro)
+
+    def do_date(self, arg):
+        """Display the current date and time"""
+        print(datetime.datetime.now())
 
 if __name__ == '__main__':
     running = True
@@ -115,9 +136,11 @@ if __name__ == '__main__':
     choice = home # First menu class
     options = {
         "global": [home],
-        "home": [about, info],
-        "about": [info],
-        "info": [about]
+        "home": [about, tools],
+        "about": [],
+        "tools": [math, calendar],
+        "math": [],
+        "calendar": []
     }
     while running == True:
         history.append(choice)
