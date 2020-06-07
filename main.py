@@ -40,38 +40,57 @@ class prompt(cmd.Cmd):
 
     def do_menu(self, arg):
         """Without an argument to display the available menus, with an argument to open a specified menu."""
-        global options, here
+        global options, here, choice
         # Display the menu list
         if not arg:
-            print("Current menu:",(here).title())
-            if options:
-                print("The following options are available:")
-                for option in options:
-                    print("  "+(str(option.__name__)).title())
+            print("   <- Back to:",(history[-2]).__name__.title()) if len(history) > 1 else False
+            print("  Active Menu:",(here).title())
+            if options[here]:
+                menuTitled = False
+                menuTitle = "      Choices: "
+                # Display global menu options
+                for option in options["global"]:
+                    if here != option.__name__: # Don't display the currently active menu
+                        leftRail = menuTitle if menuTitled == False else "               " # Only print the options header on the first line
+                        menuTitled = True # toggle to remember that options header has been set
+                        print(leftRail+(str(option.__name__)).title())
+                # Display local menu options, repeat logic used on globals above
+                for option in options[here]:
+                    if here != option.__name__:
+                        leftRail = menuTitle if menuTitled == False else "               "
+                        menuTitled = True
+                        print(leftRail+(str(option.__name__)).title())
             return False
         # Validate arg matches an option
         # Grab the list key for the selected option so we can use it to call a prompt
-        for key, val in enumerate(options): 
+        for key, val in enumerate(options["global"]): 
+            str(val.__name__)
+            if str(val.__name__) == arg:
+                argKey = key
+                choice = options["global"][argKey]
+                return True
+        for key, val in enumerate(options[here]): 
             str(val.__name__)
             if str(val.__name__) == arg:
                 argKey = key
         try:
-            global choice
-            choice = options[argKey]
+            choice = options[here][argKey]
             return True
         except:
             print("That was not a valid option. Pick an item from the list.")
             return False
 
 class home(prompt):
-    """Top level menu"""
+    """Top level menu. This menu is always an available options from any other menu"""
     def cmdloop(self, intro=None):
         """Before the inherited class's preloop"""
         global here
         here = "home"
         global options
-        options = [about, info]
         return cmd.Cmd.cmdloop(self, intro)
+
+    def do_test(self, arg):
+        print(self.blah)
 
 class about(prompt):
     def cmdloop(self, intro=None):
@@ -79,7 +98,6 @@ class about(prompt):
         global here
         here = "about"
         global options
-        options = [home, info]
         return cmd.Cmd.cmdloop(self, intro)
 
 class info(prompt):
@@ -88,14 +106,19 @@ class info(prompt):
         global here
         here = "info"
         global options
-        options = [home, about]
         return cmd.Cmd.cmdloop(self, intro)
 
 if __name__ == '__main__':
     running = True
-    choice = home # First menu class
     print("Starting root menu...")
     history = []
+    choice = home # First menu class
+    options = {
+        "global": [home],
+        "home": [about, info],
+        "about": [info],
+        "info": [about]
+    }
     while running == True:
         history.append(choice)
         choice().cmdloop()
